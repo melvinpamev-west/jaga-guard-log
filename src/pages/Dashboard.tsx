@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { LogOut, Plus, FileText, Download } from "lucide-react";
 import { ReportCard } from "@/components/ReportCard";
 import { ReportDialog } from "@/components/ReportDialog";
+import { ReportDetailDialog } from "@/components/ReportDetailDialog";
 import { generateMultipleReportsPDF } from "@/utils/pdfGenerator";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -18,7 +19,9 @@ const Dashboard = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [editingReport, setEditingReport] = useState<Report | null>(null);
+  const [viewingReport, setViewingReport] = useState<Report | null>(null);
 
   useEffect(() => {
     checkUser();
@@ -88,6 +91,11 @@ const Dashboard = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const handleView = (report: Report) => {
+    setViewingReport(report);
+    setDetailDialogOpen(true);
   };
 
   const handleEdit = (report: Report) => {
@@ -210,6 +218,7 @@ const Dashboard = () => {
               <ReportCard
                 key={report.id}
                 report={report}
+                onView={handleView}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
@@ -222,6 +231,12 @@ const Dashboard = () => {
         open={dialogOpen}
         onOpenChange={handleDialogClose}
         report={editingReport}
+      />
+
+      <ReportDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        report={viewingReport}
       />
     </div>
   );
